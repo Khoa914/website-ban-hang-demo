@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Cổng Thanh toán MoMo (Giả lập)</title>
+    <link rel="stylesheet" href="css/style.css"> <style>
+        body { background-color: #f4f6f9; }
+        .momo-container {
+            max-width: 450px;
+            margin: 50px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--do-bong);
+            text-align: center;
+            border-top: 5px solid #d82d8b; /* Màu MoMo */
+        }
+        .momo-container img {
+            width: 150px;
+            margin-bottom: 20px;
+        }
+        .qr-code-fake {
+            width: 250px;
+            height: 250px;
+            background-color: #eee;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #555;
+            border: 1px solid #ddd;
+            /*  */
+            background-image: url('https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=Thanh-toan-TZShop-Demo');
+            background-size: cover;
+        }
+        #countdown-message {
+            margin-top: 20px;
+            font-size: 1.1rem;
+            color: var(--mau-chu-phu);
+        }
+        #countdown-timer {
+            font-weight: bold;
+            color: #d82d8b;
+        }
+    </style>
+</head>
+<body>
+    <div class="momo-container">
+        <img src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png" alt="MoMo Logo">
+        <h3>Đang xử lý Thanh toán MoMo</h3>
+        <p>Vui lòng quét mã QR bên dưới để thanh toán (Giả lập)</p>
+
+        <div class="qr-code-fake">
+            </div>
+        
+        <p style="font-size: 1.5rem; font-weight: bold; color: #d82d8b;" id="order-total">
+            Đang tải tổng tiền...
+        </p>
+
+        <p id="countdown-message">
+            (Đây là trang giả lập cho đồ án)<br>
+            Tự động xác nhận thanh toán và chuyển hướng sau 
+            <span id="countdown-timer">10</span> giây...
+        </p>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const total = urlParams.get('total');
+            const orderTotalEl = document.getElementById('order-total');
+
+            // 1. Hiển thị tổng tiền (lấy từ URL)
+            if (total) {
+                const formattedTotal = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(total));
+                orderTotalEl.innerText = formattedTotal;
+            } else {
+                orderTotalEl.innerText = "Lỗi lấy tổng tiền";
+            }
+
+            // 2. Bắt đầu đếm ngược
+            let seconds = 10;
+            const timerEl = document.getElementById('countdown-timer');
+            
+            const interval = setInterval(() => {
+                seconds--;
+                timerEl.innerText = seconds;
+
+                if (seconds <= 0) {
+                    clearInterval(interval);
+                    // 3. Chuyển hướng đến trang thành công
+                    alert("Thanh toán (giả lập) thành công!");
+                    window.location.href = `dat-hang-thanh-cong.html?v=${new Date().getTime()}`;
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

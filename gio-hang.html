@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Giỏ hàng</title>
+  <link rel="stylesheet" href="css/style.css">
+  
+</head>
+<body>
+  <header class="header">
+    <div class="header-container">
+      <div class="logo">
+        <a href="index.html">TZ<span>Shop</span></a>
+      </div>
+      <div class="search-bar">
+        <input type="text" placeholder="Tìm sản phẩm...">
+        <button type="button">🔍</button>
+      </div>
+      <nav class="nav">
+  <ul>
+    <li><a href="index.html">Trang chủ</a></li>
+    <li class="dropdown">
+      <a href="javascript:void(0)" class="dropbtn">Danh mục ▼</a>
+      <div class="dropdown-content">
+        <a href="danh-muc.html?loai=laptop">Laptop</a>
+        <a href="danh-muc.html?loai=dien-thoai">Điện thoại</a>
+        <a href="danh-muc.html?loai=phu-kien">Phụ kiện</a>
+      </div>
+    </li>
+    <li><a href="gio-hang.html">🛒 Giỏ hàng <span id="cart-item-count">0</span></a></li>
+    
+    <span id="auth-links-container">
+    <li><a href="dang-nhap.html">Đăng nhập</a></li>
+    <li><a href="dang-ky.html">Đăng ký</a></li>
+</span>
+    
+  </ul>
+</nav>
+    </div>
+  </header>
+
+  <main class="cart-container">
+  <h2 style="text-align:center; margin-bottom: 30px;">🛒 Giỏ hàng của bạn</h2>
+  
+  <div id="cart-empty-msg" style="display: none;">
+    <p>Chưa có sản phẩm nào trong giỏ hàng.</p>
+  </div>
+  
+  <div class="cart-table-container">
+    <table class="cart-table">
+      <thead>
+        <tr>
+          <th colspan="2">Sản phẩm</th>
+          <th>Giá</th>
+          <th>Số lượng</th>
+          <th>Thành tiền</th>
+          <th>Hành động</th>
+        </tr>
+      </thead>
+      <tbody id="cart-items">
+      </tbody>
+    </table>
+
+    <div class="cart-total">
+      <p>Tổng cộng: <span id="cart-total">0đ</span></p>
+    </div>
+
+    <div class="checkout-button-container" style="text-align: right; margin-top: 20px;">
+            <a href="thanh-toan.html" class="btn-checkout">Tiến hành Thanh toán</a>
+        </div>
+  </div>
+</main>
+  
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-col">
+        <h3>Shop<span>Online</span></h3>
+        <p>📍 123 Đường ABC, Quận 1, TP.HCM</p>
+        <p>📞 0123 456 789</p>
+        <p>📧 shop@online.vn</p>
+      </div>
+      <div class="footer-col">
+        <h4>Hỗ trợ khách hàng</h4>
+        <ul>
+          <li><a href="#">Hướng dẫn mua hàng</a></li>
+          <li><a href="#">Câu hỏi thường gặp</a></li>
+          <li><a href="#">Chính sách bảo hành</a></li>
+          <li><a href="#">Chính sách đổi trả</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Về chúng tôi</h4>
+        <ul>
+          <li><a href="#">Giới thiệu</a></li>
+          <li><a href="#">Tuyển dụng</a></li>
+          <li><a href="#">Liên hệ</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Kết nối với chúng tôi</h4>
+        <div class="social-links">
+          <a href="#">🌐 Facebook</a>
+          <a href="#">📸 Instagram</a>
+          <a href="#">🎥 YouTube</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 ShopOnline. Tất cả quyền được bảo lưu.</p>
+    </div>
+  </footer>
+
+  <script src="js/script.js"></script>
+</body>
+</html>

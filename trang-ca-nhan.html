@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Trang cá nhân - TZShop</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* CSS Tùy chỉnh cho trang cá nhân */
+    .profile-container {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 30px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: var(--do-bong);
+    }
+    .profile-container h2 {
+      border-bottom: 2px solid var(--mau-nhan);
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+    
+    /* Phần thông tin */
+    .profile-info {
+        margin-bottom: 40px;
+    }
+    .profile-info p {
+        font-size: 1.1rem;
+        line-height: 1.8;
+    }
+    .profile-info strong {
+        color: var(--mau-chu-chinh);
+        min-width: 100px;
+        display: inline-block;
+    }
+    
+    /* Phần lịch sử đơn */
+    .order-history-table {
+        width: 100%; 
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    .order-history-table th, .order-history-table td {
+        border: 1px solid #ddd; 
+        padding: 12px 10px;
+        text-align: left;
+        vertical-align: middle;
+    }
+    .order-history-table th {
+        background-color: #f9f9f9;
+    }
+
+  </style>
+</head>
+<body>
+  <header class="header">
+   <div class="header-container">
+      <div class="logo">
+        <a href="index.html">TZ<span>Shop</span></a>
+      </div>
+      <div class="search-bar">
+        <input type="text" placeholder="Tìm sản phẩm...">
+        <button type="button">🔍</button>
+      </div>
+
+      <nav class="nav">
+          <ul>
+              <li><a href="index.html">Trang chủ</a></li>
+              <li class="dropdown">
+                  <a href="javascript:void(0)" class="dropbtn">Danh mục ▼</a>
+                  <div class="dropdown-content">
+                      <a href="danh-muc.html?loai=laptop">Laptop</a>
+                      <a href="danh-muc.html?loai=dien-thoai">Điện thoại</a>
+                      <a href="danh-muc.html?loai=phu-kien">Phụ kiện</a>
+                  </div>
+              </li>
+              <li><a href="gio-hang.html">🛒 Giỏ hàng <span id="cart-item-count">0</span></a></li>
+              <span id="auth-links-container">
+                  </span>
+          </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="profile-container">
+    
+    <section class="profile-info">
+        <h2>Thông tin tài khoản</h2>
+        <p><strong>Họ tên:</strong> <span id="user-name">Đang tải...</span></p>
+        <p><strong>Email:</strong> <span id="user-email">Đang tải...</span></p>
+        
+        <p><strong>Điện thoại:</strong> <span id="user-phone">Đang tải...</span></p>
+        <p><strong>Địa chỉ:</strong> <span id="user-address">Đang tải...</span></p>
+        
+    </section>
+
+    <section class="order-history">
+        <h2>Lịch sử mua hàng</h2>
+        <table class="order-history-table">
+            <thead>
+                <tr>
+                    <th>Mã Đơn Hàng</th>
+                    <th>Thời gian đặt</th>
+                    <th>Tổng tiền</th>
+                    <th>Trạng thái</th>
+                    <th>Hành động</th> </tr>
+            </thead>
+            <tbody id="order-history-body">
+                <tr><td colspan="5" style="text-align:center;">Đang tải...</td></tr> </tbody>
+        </table>
+    </section>
+
+  </main>
+
+
+  <footer class="footer">
+    </footer>
+
+  <script src="js/script.js"></script>
+  
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        // Lấy các element
+        const userNameEl = document.getElementById('user-name');
+        const userEmailEl = document.getElementById('user-email');
+
+        // THÊM 2 DÒNG NÀY
+          const userPhoneEl = document.getElementById('user-phone');
+          const userAddressEl = document.getElementById('user-address');
+
+        const historyBodyEl = document.getElementById('order-history-body');
+
+        // [MỚI] Dùng Event Delegation
+        document.body.addEventListener('click', function(e) {
+            // Kiểm tra xem nút được click có phải là nút xác nhận không
+            if (e.target && e.target.classList.contains('btn-confirm-delivery')) {
+                const btn = e.target;
+                const orderId = btn.dataset.orderId;
+                
+                if (confirm(`Bạn xác nhận đã nhận được hàng cho đơn hàng #${orderId}?`)) {
+                    confirmDelivery(orderId); // Gọi hàm xử lý (viết ở dưới)
+                }
+            }
+        });
+
+        // Hàm tải dữ liệu
+        async function loadUserProfile() {
+            try {
+                const response = await fetch('user-profile-api.php');
+                if (!response.ok) throw new Error('Lỗi mạng khi gọi API');
+                
+                const data = await response.json();
+
+                if (data.success) {
+                    // 1. Điền thông tin cá nhân
+                    if (data.userInfo) {
+                        userNameEl.innerText = data.userInfo.ho_ten;
+                        userEmailEl.innerText = data.userInfo.email;
+                        // THÊM 2 DÒNG NÀY
+                          userPhoneEl.innerText = data.userInfo.so_dien_thoai;
+                          userAddressEl.innerText = data.userInfo.dia_chi;
+                    }
+                    else {
+                           userNameEl.innerText = 'N/A';
+                           userEmailEl.innerText = 'N/A';
+                           // THÊM 2 DÒNG NÀY
+                           userPhoneEl.innerText = 'N/A';
+                           userAddressEl.innerText = 'N/A';
+                      }
+
+                    // 2. Điền lịch sử mua hàng
+                    if (data.orderHistory && data.orderHistory.length > 0) {
+                        historyBodyEl.innerHTML = ''; // Xóa "Đang tải..."
+                        data.orderHistory.forEach(order => {
+                            
+                            // [MỚI] Logic tạo nút
+                            let actionHtml = '—'; // Mặc định là gạch ngang
+                            if (order.trang_thai === 'Đang vận chuyển') {
+                                actionHtml = `
+                                    <button class="btn-confirm-delivery" 
+                                            data-order-id="${order.id}"
+                                            style="background-color: #27ae60; color:white; border:none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
+                                        Đã nhận hàng
+                                    </button>
+                                `;
+                            }
+                            
+                            // [MỚI] Thêm <td> cho trạng thái và hành động
+                            historyBodyEl.innerHTML += `
+                                <tr>
+                                    <td>#${order.id}</td>
+                                    <td>${formatOrderDate(order.thoi_gian_dat)}</td>
+                                    <td>${formatCurrency(order.tong_tien)}</td>
+                                    <td>${formatOrderStatus(order.trang_thai)}</td>
+                                    <td>${actionHtml}</td>
+                                </tr>
+                            `;
+                        });
+                    } else {
+                        // Sửa colspan="4" thành 5
+                        historyBodyEl.innerHTML = '<tr><td colspan="5" style="text-align:center;">Bạn chưa có đơn hàng nào.</td></tr>';
+                    }
+
+                } else {
+                    alert('Lỗi: ' + data.message);
+                    window.location.href = 'dang-nhap.html';
+                }
+
+            } catch (error) {
+                console.error('Lỗi khi tải trang cá nhân:', error);
+                historyBodyEl.innerHTML = `<tr><td colspan="5" style="color:red; text-align:center;">Lỗi tải dữ liệu.</td></tr>`; // Sửa colspan
+            }
+        }
+        
+        // [MỚI] Hàm gọi API để xác nhận
+        async function confirmDelivery(orderId) {
+            try {
+                const response = await fetch('confirm-delivery-api.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ order_id: parseInt(orderId) })
+                });
+
+                if (!response.ok) throw new Error('Lỗi mạng');
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(result.message || 'Xác nhận thành công!');
+                    loadUserProfile(); // [QUAN TRỌNG] Tải lại lịch sử đơn hàng
+                } else {
+                    alert('Lỗi: ' + (result.message || 'Không thể xác nhận.'));
+                }
+            } catch (error) {
+                alert('Lỗi: ' + error.message);
+            }
+        }
+        
+        // ----- Các hàm Helper (Hỗ trợ) -----
+        
+        function formatCurrency(number) {
+            const num = Number(number);
+            if (isNaN(num)) return "0 ₫";
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(num);
+        }
+        
+        function formatOrderDate(dateString) {
+            const date = new Date(dateString);
+            const pad = (num) => String(num).padStart(2, '0');
+            const day = pad(date.getDate());
+            const month = pad(date.getMonth() + 1);
+            const year = date.getFullYear();
+            const hours = pad(date.getHours());
+            const minutes = pad(date.getMinutes());
+            return `${hours}:${minutes} - ${day}/${month}/${year}`;
+        }
+
+        // [MỚI] Hàm định dạng màu mè cho trạng thái
+        function formatOrderStatus(status) {
+            let color = '#555'; // Màu mặc định
+            if (status === 'Chờ xác nhận') color = '#f39c12'; // Vàng
+            if (status === 'Đang vận chuyển') color = '#007bff'; // Xanh
+            if (status === 'Hoàn tất') color = '#27ae60'; // Xanh lá
+            if (status === 'Đã hủy') color = '#e74c3c'; // Đỏ
+            return `<strong style="color: ${color};">${status}</strong>`;
+        }
+
+        // Gọi hàm tải
+        loadUserProfile();
+
+    }); // Kết thúc DOMContentLoaded
+</script>
+</body>
+</html>

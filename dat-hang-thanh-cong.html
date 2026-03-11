@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đặt hàng thành công - TZShop</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* CSS tùy chỉnh cho trang thành công */
+    .success-container {
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 40px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: var(--do-bong);
+      text-align: center;
+    }
+    .success-container h2 {
+      color: #27ae60; /* Màu xanh lá */
+      margin-bottom: 20px;
+      font-size: 2rem;
+    }
+    .success-container p {
+      margin-bottom: 30px;
+      font-size: 1.1rem;
+      color: var(--mau-chu-phu);
+    }
+    /* Tái sử dụng class .btn-checkout từ style.css */
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-container">
+      <div class="logo">
+        <a href="index.html">TZ<span>Shop</span></a>
+      </div>
+      <div class="search-bar">
+        <input type="text" placeholder="Tìm sản phẩm...">
+        <button type="button">🔍</button>
+      </div>
+      <nav class="nav">
+          <ul>
+              <li><a href="index.html">Trang chủ</a></li>
+              <li class="dropdown">
+                  <a href="javascript:void(0)" class="dropbtn">Danh mục ▼</a>
+                  <div class="dropdown-content">
+                      <a href="danh-muc.html?loai=laptop">Laptop</a>
+                      <a href="danh-muc.html?loai=dien-thoai">Điện thoại</a>
+                      <a href="danh-muc.html?loai=phu-kien">Phụ kiện</a>
+                  </div>
+              </li>
+              <li><a href="gio-hang.html">🛒 Giỏ hàng <span id="cart-item-count">0</span></a></li>
+              <span id="auth-links-container">
+                  </span>
+          </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="success-container">
+      <h2>✅ Đặt hàng thành công!</h2>
+      <p>Cảm ơn bạn đã mua hàng tại TZShop. Đơn hàng của bạn đang được xử lý và sẽ sớm được giao đến bạn.</p>
+      <a href="index.html" class="btn-checkout">Tiếp tục mua sắm</a>
+  </main>
+  
+  <footer class="footer">
+    <div class="footer-container">
+        </div>
+    <div class="footer-bottom">
+        </div>
+  </footer>
+
+  <script src="js/script.js"></script>
+</body>
+</html>

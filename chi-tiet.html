@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Chi tiết sản phẩm</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Header -->
+  <!-- Header -->
+  <header class="header">
+  <div class="header-container">
+    <!-- Logo -->
+    <div class="logo">
+      <a href="index.html">TZ<span>Shop</span></a>
+    </div>
+
+    <!-- Thanh tìm kiếm -->
+    <div class="search-bar">
+      <input type="text" placeholder="Tìm sản phẩm...">
+      <button type="button">🔍</button>
+    </div>
+
+    <!-- Menu -->
+    <nav class="nav">
+  <ul>
+    <li><a href="index.html">Trang chủ</a></li>
+    <li class="dropdown">
+      <a href="javascript:void(0)" class="dropbtn">Danh mục ▼</a>
+      <div class="dropdown-content">
+        <a href="danh-muc.html?loai=laptop">Laptop</a>
+        <a href="danh-muc.html?loai=dien-thoai">Điện thoại</a>
+        <a href="danh-muc.html?loai=phu-kien">Phụ kiện</a>
+      </div>
+    </li>
+    <li><a href="gio-hang.html">🛒 Giỏ hàng <span id="cart-item-count">0</span></a></li>
+    
+    <span id="auth-links-container">
+    <li><a href="dang-nhap.html">Đăng nhập</a></li>
+    <li><a href="dang-ky.html">Đăng ký</a></li>
+</span>
+    
+  </ul>
+</nav>
+  </div>
+</header>
+
+  <!-- Chi tiết sản phẩm sẽ được render bởi script.js -->
+  <section id="chi-tiet" style="padding:20px; display:flex; gap:20px;"></section>
+
+  
+
+  <!-- Gọi script -->
+  <script src="js/script.js"></script>
+</body>
+</html>

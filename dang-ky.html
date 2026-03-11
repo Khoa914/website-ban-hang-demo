@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng ký - ShopOnline</title>
+  
+  <link rel="stylesheet" href="css/style.css">
+  
+  
+
+  </head>
+<body>
+  <header class="header">
+    <div class="header-container">
+      <div class="logo">
+        <a href="index.html">TZ<span>Shop</span></a>
+      </div>
+      <div class="search-bar">
+        <input type="text" placeholder="Tìm sản phẩm...">
+        <button type="button">🔍</button>
+      </div>
+      <nav class="nav">
+  <ul>
+    <li><a href="index.html">Trang chủ</a></li>
+    <li class="dropdown">
+      <a href="javascript:void(0)" class="dropbtn">Danh mục ▼</a>
+      <div class="dropdown-content">
+        <a href="danh-muc.html?loai=laptop">Laptop</a>
+        <a href="danh-muc.html?loai=dien-thoai">Điện thoại</a>
+        <a href="danh-muc.html?loai=phu-kien">Phụ kiện</a>
+      </div>
+    </li>
+    <li><a href="gio-hang.html">🛒 Giỏ hàng <span id="cart-item-count">0</span></a></li>
+    
+    <span id="auth-links-container">
+    <li><a href="dang-nhap.html">Đăng nhập</a></li>
+    <li><a href="dang-ky.html">Đăng ký</a></li>
+</span>
+    
+  </ul>
+</nav>
+    </div>
+  </header>
+
+  <main class="auth-container">
+    <h2>Đăng ký tài khoản</h2>
+    
+    <form id="register-form" class="auth-form" action="dang-ky.php" method="POST">
+      <div id="auth-message"></div>
+
+      <div class="form-group">
+        <label for="ho_ten">Họ tên</label>
+        <input type="text" id="ho_ten" name="ho_ten" required>
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required>
+      </div>
+
+      <div class="form-group">
+        <label for="so_dien_thoai">Số điện thoại</label>
+        <input type="tel" id="so_dien_thoai" name="so_dien_thoai" required>
+      </div>
+      <div class="form-group">
+        <label for="dia_chi">Địa chỉ giao hàng</label>
+        <input type="text" id="dia_chi" name="dia_chi" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="mat_khau">Mật khẩu (ít nhất 6 ký tự)</label>
+        <input type="password" id="mat_khau" name="mat_khau" required minlength="6">
+      </div>
+      <div class="form-group">
+        <label for="xac_nhan_mat_khau">Xác nhận mật khẩu</label>
+        <input type="password" id="xac_nhan_mat_khau" name="xac_nhan_mat_khau" required>
+      </div>
+      <button type="submit">Đăng ký</button>
+    </form>
+    
+    <div class="switch-link">
+      <p>Bạn đã có tài khoản? <a href="dang-nhap.html">Đăng nhập ngay</a></p>
+    </div>
+  </main>
+  
+  <footer class="footer">
+    </footer>
+
+  <script src="js/script.js"></script>
+</body>
+</html>

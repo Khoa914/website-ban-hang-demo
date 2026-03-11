@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trang Quản Trị - TZShop</title>
+  <link rel="stylesheet" href="css/style.css">
+  
+  <style>
+    /* CSS TÙY CHỈNH CHO TRANG ADMIN (ĐÃ SỬA LỖI VÀ THÊM TABS) */
+    .admin-container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 30px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: var(--do-bong);
+    }
+    .admin-container h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: var(--mau-chu-chinh);
+    }
+    #admin-greeting {
+        padding: 15px;
+        margin-bottom: 20px;
+        background-color: #f0f0f0;
+        border-radius: 6px;
+    }
+
+    /* [MỚI] CSS CHO ADMIN TABS */
+    .admin-nav-tabs {
+        display: flex;
+        border-bottom: 2px solid #ddd;
+        margin-bottom: 30px;
+    }
+    .admin-tab-link {
+        padding: 15px 25px;
+        cursor: pointer;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--mau-chu-phu);
+        border: none;
+        background: none;
+        position: relative;
+        bottom: -2px; /* Hiệu ứng nổi lên khi active */
+    }
+    .admin-tab-link:hover {
+        color: var(--mau-chu-chinh);
+    }
+    .admin-tab-link.active {
+        color: var(--mau-nhan);
+        border-bottom: 2px solid var(--mau-nhan);
+    }
+    .admin-tab-content {
+        display: none; /* Ẩn tất cả nội dung tab ban đầu */
+    }
+    .admin-tab-content.active {
+        display: block; /* Hiện tab đang được chọn */
+    }
+
+    /* CSS cho Form (Lấy từ auth.css để dùng chung) */
+    .product-form-container {
+        border: 1px solid #ddd;
+        padding: 20px;
+        margin-bottom: 30px;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+    }
+    .product-form .form-group {
+      margin-bottom: 15px;
+      text-align: left;
+    }
+    .product-form label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+    .product-form input, .product-form select {
+        width: 100%; 
+        padding: 10px; 
+        margin-bottom: 15px;
+        border: 1px solid #ccc; 
+        border-radius: 4px; 
+        box-sizing: border-box;
+        font-family: 'Montserrat', sans-serif; /* Đảm bảo font nhất quán */
+        font-size: 0.95rem;
+    }
+    .product-form button {
+        padding: 10px 20px; 
+        background-color: var(--mau-nhan);
+        color: white; 
+        border: none; 
+        border-radius: 4px; 
+        cursor: pointer;
+        font-weight: 600;
+        transition: background-color 0.3s;
+    }
+     .product-form button:hover {
+        background-color: var(--mau-nhan-hover);
+     }
+    
+    /* CSS cho Bảng */
+    .admin-table {
+        width: 100%; 
+        border-collapse: collapse;
+        margin-top: 20px; /* Thêm margin-top cho bảng */
+    }
+    .admin-table th, .admin-table td {
+        border: 1px solid #ddd; 
+        padding: 12px 10px; /* Tăng padding */
+        text-align: left;
+        vertical-align: middle;
+    }
+    .admin-table th {
+        background-color: #f9f9f9;
+    }
+    .admin-table img {
+        width: 50px; 
+        height: 50px; 
+        object-fit: cover;
+        border-radius: 4px;
+    }
+    
+    /* CSS cho nút Sửa/Xóa trong bảng */
+    .btn-delete, .btn-edit {
+        color: white !important; /* Ghi đè màu của <a> */
+        border: none; 
+        padding: 5px 10px;
+        border-radius: 4px; 
+        cursor: pointer; 
+        margin-right: 5px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+    .btn-delete { background-color: #e74c3c; }
+    .btn-edit { background-color: #007bff; }
+    .btn-delete:hover { background-color: #c0392b; }
+    .btn-edit:hover { background-color: #0056b3; }
+    
+    /* CSS cho form sửa (giống form thêm) */
+    #edit-product-section {
+        display: none; 
+        border: 1px solid #007bff; 
+        padding: 20px; 
+        margin-bottom: 30px; 
+        border-radius: 8px; 
+        background-color: #e7f3ff;
+    }
+    
+    /* Nút xem chi tiết đơn hàng */
+    .btn-view-details {
+        background-color: #17a2b8;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .btn-view-details:hover {
+        background-color: #117a8b;
+    }
+    
+
+    /* ========== TỐI ƯU CỘT HÀNH ĐỘNG (NÚT SỬA/XÓA) ========== */
+
+/* 1. Tác động vào ô cuối cùng của mỗi dòng (ô Hành động) */
+.admin-table td:last-child {
+    display: flex;           /* Dùng Flexbox để dàn hàng ngang */
+    gap: 8px;                /* Tạo khoảng cách giữa 2 nút là 8px */
+    justify-content: center; /* Căn giữa nút vào giữa ô */
+    align-items: center;     /* Căn giữa theo chiều dọc */
+    border-bottom: 1px solid #ddd; /* Giữ lại viền dưới (do flex có thể làm mất) */
+    padding: 8px;            /* Căn chỉnh khoảng cách */
+}
+
+/* 2. Chỉnh lại kích thước nút cho đều nhau */
+.btn-edit, .btn-delete {
+    margin: 0 !important;    /* Bỏ margin cũ */
+    padding: 6px 0;          /* Padding trên dưới */
+    width: 60px;             /* Cố định chiều rộng để 2 nút bằng nhau chằn chặn */
+    text-align: center;
+    font-size: 0.9rem;
+    display: inline-block;
+}
+
+/* ========== CSS CHO MODAL (POPUP) ========== */
+.modal {
+    display: none; /* Mặc định ẩn */
+    position: fixed; 
+    z-index: 1000; /* Nổi lên trên cùng */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5); /* Nền đen mờ */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto; /* Cách trên 5%, căn giữa */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 600px; /* Chiều rộng form */
+    max-width: 90%;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    position: relative;
+    animation: animatetop 0.4s; /* Hiệu ứng trượt xuống */
+}
+
+/* Hiệu ứng trượt */
+@keyframes animatetop {
+    from {top: -300px; opacity: 0}
+    to {top: 0; opacity: 1}
+}
+
+/* Nút đóng (X) */
+.close-modal {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.close-modal:hover { color: black; }
+
+/* Nút mở Modal Thêm (Xanh lá) */
+#btn-open-add-modal {
+    background-color: #27ae60;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-bottom: 20px;
+    display: inline-block;
+}
+
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+    <header class="header">
+       <div class="header-container">
+          <div class="logo">
+            <a href="index.html">TZ<span>Shop</span></a>
+          </div>
+          <div class="search-bar">
+            <input type="text" placeholder="Tìm sản phẩm...">
+            <button type="button">🔍</button>
+          </div>
+
+          <nav class="nav">
+              <ul>
+                  <li><a href="index.html">Trang chủ</a></li>
+                  <li class="dropdown">
+                      <a href="javascript:void(0)" class="dropbtn">Danh mục ▼</a>
+                      <div class="dropdown-content">
+                          <a href="danh-muc.html?loai=laptop">Laptop</a>
+                          <a href="danh-muc.html?loai=dien-thoai">Điện thoại</a>
+                          <a href="danh-muc.html?loai=phu-kien">Phụ kiện</a>
+                      </div>
+                  </li>
+                  <li><a href="gio-hang.html">🛒 Giỏ hàng <span id="cart-item-count">0</span></a></li>
+                  <span id="auth-links-container">
+                      <li><a href="dang-nhap.html">Đăng nhập</a></li>
+                      <li><a href="dang-ky.html">Đăng ký</a></li>
+                  </span>
+              </ul>
+          </nav>
+        </div>
+    </header>
+  
+  <main class="admin-container">
+    <h2>🛠️ Trang Quản Trị Hệ Thống 🛠️</h2>
+    <div id="admin-greeting">Chào mừng, <strong id="admin-name">Admin</strong>.</div>
+
+    <nav class="admin-nav-tabs">
+        <button class="admin-tab-link active" data-tab="tab-products">Quản lý Sản phẩm</button>
+        <button class="admin-tab-link" data-tab="tab-orders">Quản lý Đơn hàng</button>
+        <button class="admin-tab-link" data-tab="tab-users">Quản lý Người dùng</button>
+        <button class="admin-tab-link" data-tab="tab-categories">Quản lý Danh mục</button>
+        <button class="admin-tab-link" data-tab="tab-stats">Báo cáo & Thống kê</button>
+    </nav>
+
+   <section id="tab-products" class="admin-tab-content active">
+        
+        <button id="btn-open-add-modal">+ Thêm Sản Phẩm Mới</button>
+
+        <div style="margin-bottom: 20px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <label for="admin-category-filter">Lọc theo Danh mục:</label>
+                <select id="admin-category-filter" style="padding: 8px; border-radius: 4px;"> 
+                    <option value="all">-- Xem tất cả --</option>
+                </select>
+            </div>
+            
+        </div>
+
+        
+
+        <div id="modal-add" class="modal">
+            <div class="modal-content">
+                <span class="close-modal" data-target="modal-add">&times;</span>
+                <h3>Thêm Sản Phẩm Mới</h3>
+                <form id="add-product-form" class="product-form" action="add-product-handler.php" method="POST" enctype="multipart/form-data">
+                    <input type="text" name="ten" placeholder="Tên sản phẩm" required>
+                    
+                    <label>Giá gốc (Niêm yết):</label>
+                    <input type="text" name="gia_goc" class="input-price" placeholder="VD: 30.000.000">
+                    
+                    <label>Giá bán (Sau giảm):</label>
+                    <input type="text" name="gia" class="input-price" placeholder="VD: 25.000.000" required>
+                    
+                    <input type="text" name="moTa" placeholder="Mô tả ngắn" required>
+                    
+                    <label>Chọn ảnh:</label>
+                    <input type="file" name="hinh" required>
+
+                    <label>Danh mục chính:</label>
+                    <select id="add-cat-parent" style="width:100%; padding:10px; margin-bottom:10px;"><option value="">-- Chọn --</option></select>
+                    
+                    <label>Danh mục chi tiết:</label>
+                    <select name="category_id" id="add-cat-child" required style="width:100%; padding:10px; margin-bottom:15px;"><option value="">-- Chọn cha trước --</option></select>
+
+                    <label>Số lượng kho:</label>
+                    <input type="number" name="so_luong" value="0" min="0" required>
+
+                    <button type="submit">Lưu Sản Phẩm</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="modal-edit" class="modal">
+            <div class="modal-content">
+                <span class="close-modal" data-target="modal-edit">&times;</span>
+                <h3>Chỉnh Sửa Sản Phẩm (ID: <span id="edit-product-id"></span>)</h3>
+                
+                <form id="edit-product-form" class="product-form" enctype="multipart/form-data">
+                    <input type="hidden" name="id" id="edit-id">
+                    
+                    <label>Tên sản phẩm:</label>
+                    <input type="text" name="ten" id="edit-ten" required>
+                    
+                    <label>Giá gốc:</label>
+                    <input type="text" name="gia_goc" id="edit-gia-goc" class="input-price">
+                    
+                    <label>Giá bán:</label>
+                    <input type="text" name="gia" id="edit-gia" class="input-price" required>
+                    
+                    <label>Mô tả:</label>
+                    <input type="text" name="moTa" id="edit-moTa" required>
+
+                    <div style="margin-bottom:15px; border:1px solid #ddd; padding:10px;">
+                        <img id="edit-hinh-preview" src="" style="width:60px; height:60px; object-fit:cover;">
+                        <input type="hidden" name="hinh_cu" id="edit-hinh-cu">
+                    </div>
+                    <input type="file" id="edit-hinh-moi" name="hinh">
+
+                    <label>Danh mục chính:</label>
+                    <select id="edit-cat-parent" style="width:100%; padding:10px; margin-bottom:10px;"><option value="">-- Chọn --</option></select>
+                    
+                    <label>Danh mục chi tiết:</label>
+                    <select name="category_id" id="edit-cat-child" required style="width:100%; padding:10px; margin-bottom:15px;"><option value="">-- Chọn cha trước --</option></select>
+
+                    <label>Số lượng kho:</label>
+                    <input type="number" name="so_luong" id="edit-so-luong" min="0" required>
+
+                    <button type="submit">Cập nhật</button>
+                </form>
+            </div>
+        </div>
+
+
+        <h3>Danh Sách Sản Phẩm Hiện Có</h3>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                <th>ID</th>
+                <th>Ảnh</th>
+                <th>Tên SP</th>
+                <th>Giá</th>
+                <th>SL</th> <th>Loại</th>
+                <th>Hành động</th>
+            </tr>
+        </section>
+        
+        
+        
+        </thead>
+        <tbody id="product-list-body">
+            <tr><td colspan="7">...</td></tr> </tbody>
+            </thead>
+            <tbody id="product-list-body">
+                </tbody>
+        </table>
+    </section>
+
+    <section id="tab-orders" class="admin-tab-content">
+        <h3>Danh Sách Đơn Hàng</h3>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID Đơn hàng</th>
+                    <th>Tên Khách hàng</th>
+                    <th>Địa chỉ</th> <th>Tổng tiền</th>
+                    <th>Thời gian đặt</th>
+                    <th>Trạng thái</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody id="order-list-body">
+                <tr><td colspan="7">Đang tải...</td></tr> 
+            </tbody>
+        </table>
+    </section>
+
+    <section id="tab-users" class="admin-tab-content">
+        <h3>Danh Sách Người Dùng</h3>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID User</th>
+                    <th>Họ tên</th>
+                    <th>Email</th>
+                    <th>Vai trò (Role)</th>
+                    <th>Hành động</th> 
+                </tr>
+            </thead>
+            <tbody id="user-list-body">
+                </tbody>
+        </table>
+    </section>
+
+
+    <section id="tab-categories" class="admin-tab-content">
+        
+        <div class="product-form-container">
+            <h3>Thêm Danh Mục Mới</h3>
+            <div style="display: flex; gap: 15px; align-items: flex-end;">
+                <div style="flex: 1;">
+                    <label style="display:block; margin-bottom:5px;">Thuộc danh mục (Cha):</label>
+                    <select id="new-cat-parent" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                        <option value="0">-- Là Danh Mục Gốc (Cha) --</option>
+                        </select>
+                </div>
+                
+                <div style="flex: 1;">
+                    <label style="display:block; margin-bottom:5px;">Tên danh mục:</label>
+                    <input type="text" id="new-cat-name" placeholder="VD: Laptop Gaming, Phụ Kiện..." style="width: 100%; margin-bottom: 0;">
+                </div>
+
+                <button id="btn-add-cat" style="padding: 10px 20px; height: 42px; background: #27ae60; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                    + Thêm Ngay
+                </button>
+            </div>
+        </div>
+
+        <h3 style="margin-top: 30px;">Danh Sách Danh Mục Hiện Có</h3>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tên Danh Mục</th>
+                    <th>Cấp độ</th> <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody id="category-list-body">
+                <tr><td colspan="4">Đang tải...</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section id="tab-stats" class="admin-tab-content">
+        <div style="text-align: right; margin-bottom: 20px;">
+            <button id="btn-export-pdf" style="padding: 10px 20px; background: #e74c3c; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
+                📄 Xuất Báo Cáo PDF
+            </button>
+        </div>
+
+        <div id="report-content" style="padding: 20px; background: white; border: 1px solid #ddd; border-radius: 8px;">
+            <h2 style="text-align: center; color: #2c3e50;">BÁO CÁO DOANH THU TZSHOP</h2>
+            <p style="text-align: center; color: #777; margin-bottom: 30px;">(Dữ liệu dựa trên các đơn hàng đã Hoàn tất)</p>
+
+            <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 300px; height: 350px;"> 
+                    <h4 style="text-align: center;">Biểu đồ Doanh thu (6 tháng)</h4>
+                    <canvas id="revenueChart" style="max-height: 300px;"></canvas>
+                </div>
+                
+                <div style="flex: 1; min-width: 300px; height: 300px;"> <h4 style="text-align: center;">Top 5 Sản phẩm bán chạy</h4>
+                    <canvas id="productChart" style="max-height: 300px;"></canvas>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 40px; border-bottom: 2px solid #333; padding-bottom: 10px;">Chi tiết số liệu</h3>
+            <table class="admin-table" style="margin-top: 10px;">
+                <thead>
+                    <tr>
+                        <th>Tháng</th>
+                        <th>Doanh thu (VND)</th>
+                    </tr>
+                </thead>
+                <tbody id="revenue-table-body">
+                    </tbody>
+            </table>
+        </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-col">
+        <h3>TZ<span>Shop</span></h3>
+        <p>📍 123 Đường ABC, Quận 1, TP.HCM</p>
+        <p>📞 0123 456 789</p>
+        <p>📧 shop@online.vn</p>
+      </div>
+      <div class="footer-col">
+        <h4>Hỗ trợ khách hàng</h4>
+        <ul>
+          <li><a href="#">Hướng dẫn mua hàng</a></li>
+          <li><a href="#">Câu hỏi thường gặp</a></li>
+          <li><a href="#">Chính sách bảo hành</a></li>
+          <li><a href="#">Chính sách đổi trả</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Về chúng tôi</h4>
+        <ul>
+          <li><a href="#">Giới thiệu</a></li>
+          <li><a href="#">Tuyển dụng</a></li>
+          <li><a href="#">Liên hệ</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Kết nối với chúng tôi</h4>
+        <div class="social-links">
+          <a href="#">🌐 Facebook</a>
+          <a href="#">📸 Instagram</a>
+          <a href="#">🎥 YouTube</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 ShopOnline. Tất cả quyền được bảo lưu.</p>
+    </div>
+  </footer>
+
+  <script src="js/script.js"></script>
+  
+<script src="js/script.js"></script>
+
+ <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let allCategories = [];
+
+        // Khai báo các biến điều khiển
+        const tabs = document.querySelectorAll('.admin-tab-link');
+        const contents = document.querySelectorAll('.admin-tab-content');
+        const orderTab = document.querySelector('.admin-tab-link[data-tab="tab-orders"]');
+        const orderTabContent = document.getElementById('tab-orders');
+        const orderListBody = document.getElementById('order-list-body');
+        
+        // 1. Dùng "Event Delegation" để bắt tất cả click
+        document.body.addEventListener('click', function(e) {
+            
+            // A. Xử lý click nút "Xem Đơn" (từ tab User)
+            if (e.target && e.target.classList.contains('btn-view-user-orders')) {
+                const btn = e.target;
+                const userId = btn.dataset.userId;
+                const userName = btn.dataset.userName;
+                loadUserOrders(userId, userName);
+                tabs.forEach(t => t.classList.remove('active'));
+                contents.forEach(c => c.classList.remove('active'));
+                orderTab.classList.add('active');
+                orderTabContent.classList.add('active');
+            }
+                        // Trong document.body.addEventListener('click', ...)
+            else if (e.target.classList.contains('btn-edit')) {
+                // Gọi hàm vừa tạo bên trên
+                handleShowEditForm(e); 
+            }
+            
+            // B. Xử lý click nút "Hiển thị tất cả" (từ tab Đơn hàng)
+            else if (e.target && e.target.id === 'btn-show-all-orders') {
+                loadOrders(); // Tải lại toàn bộ
+                const oldTitle = orderTabContent.querySelector('.filter-title');
+                if (oldTitle) oldTitle.remove();
+            }
+
+            // Xử lý nút XÓA DANH MỤC
+            else if (e.target.classList.contains('btn-del-cat')) {
+                if(confirm('Bạn có chắc muốn xóa danh mục này?')) {
+                    deleteCategory(e.target.dataset.id);
+                }
+            }// Xử lý nút THÊM
+            else if (e.target.id === 'btn-add-cat') {
+                // ... lấy name, parentId ...
+                if (name) addCategory(name, parentId); // Gọi hàm thêm
+            }
+            
+           // Xử lý nút XÓA DANH MỤC
+            else if (e.target.classList.contains('btn-del-cat')) {
+                if(confirm('Bạn có chắc muốn xóa danh mục này?')) {
+                    deleteCategory(e.target.dataset.id);
+                }
+            }
+            
+            // C. Xử lý click nút "Khóa" hoặc "Mở" User
+            else if (e.target && (e.target.classList.contains('btn-block-user') || e.target.classList.contains('btn-unblock-user'))) {
+                const btn = e.target;
+                const userId = btn.dataset.userId;
+                const newStatus = btn.dataset.newStatus;
+                const userName = btn.dataset.userName;
+                const actionText = newStatus == 0 ? 'KHÓA' : 'MỞ KHÓA';
+                if (confirm(`Bạn có chắc muốn ${actionText} tài khoản của ${userName}?`)) {
+                    toggleUserStatus(userId, newStatus);
+                }
+            }
+            
+            // [MỚI] D. Xử lý click nút "Xác nhận" Đơn hàng
+            else if (e.target && e.target.classList.contains('btn-confirm-order')) {
+                const btn = e.target;
+                const orderId = btn.dataset.orderId;
+                if (confirm(`Bạn có chắc muốn XÁC NHẬN đơn hàng #${orderId}?\nTrạng thái sẽ chuyển thành 'Đang vận chuyển'.`)) {
+                    updateOrderStatus(orderId, 'Đang vận chuyển');
+                }
+            }
+            // [MỚI] E. Xử lý click nút "Xem" Chi tiết Đơn hàng
+            else if (e.target && e.target.classList.contains('btn-view-details')) {
+                const btn = e.target;
+                const orderId = btn.dataset.orderId;
+                showOrderDetails(orderId); // Gọi hàm mới (ở dưới)
+            }
+
+            // [MỚI] Hàm xử lý Modal
+        const modalAdd = document.getElementById('modal-add');
+        const modalEdit = document.getElementById('modal-edit');
+        const btnOpenAdd = document.getElementById('btn-open-add-modal');
+        const closeBtns = document.querySelectorAll('.close-modal');
+
+        // Mở modal Thêm
+        if(btnOpenAdd) {
+            btnOpenAdd.onclick = function() { 
+                modalAdd.style.display = "block"; 
+                populateParentSelect('add-cat-parent'); // Load danh mục cha
+            }
+        }
+
+        // Đóng modal (khi bấm X hoặc bấm ra ngoài)
+        closeBtns.forEach(btn => {
+            btn.onclick = function() {
+                document.getElementById(this.dataset.target).style.display = "none";
+            }
+        });
+        window.onclick = function(event) {
+            if (event.target == modalAdd) modalAdd.style.display = "none";
+            if (event.target == modalEdit) modalEdit.style.display = "none";
+        }
+        });
+
+        // ----- CÁC HÀM TẢI DỮ LIỆU -----
+
+        // 2. Hàm: Tải danh sách TẤT CẢ Đơn hàng (Đã di dời vào đây)
+        async function loadOrders() {
+            if (!orderListBody) return;
+            orderListBody.innerHTML = '<tr><td colspan="7">Đang tải...</td></tr>';
+            
+            const orders = await fetchAdminData('orders'); // API đã được nâng cấp
+            
+            if (orders && orders.length > 0) {
+                orderListBody.innerHTML = '';
+                orders.forEach(order => {
+                    const formattedDate = formatOrderDate(order.thoi_gian_dat);
+                    const statusHtml = formatOrderStatus(order.trang_thai);
+                    const actionHtml = generateActionButtons(order);
+
+                    orderListBody.innerHTML += `
+                        <tr>
+                            <td>${order.id}</td>
+                            <td>${order.ho_ten}</td>
+                            <td style="font-size: 0.9rem; max-width: 150px;">${order.dia_chi}</td>
+                            <td>${formatCurrency(order.tong_tien)}</td>
+                            <td>${formattedDate}</td>
+                            <td>${statusHtml}</td> 
+                            <td>${actionHtml}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                orderListBody.innerHTML = '<tr><td colspan="7">Chưa có đơn hàng nào.</td></tr>';
+            }
+        }
+
+        // 3. Hàm: Tải đơn hàng CỦA 1 USER
+        async function loadUserOrders(userId, userName) {
+            if (!orderListBody) return;
+            orderListBody.innerHTML = `<tr><td colspan="7">Đang tải đơn hàng của ${userName}...</td></tr>`;
+            
+            const orders = await fetchAdminData('orders', { user_id: userId });
+            
+            // Xóa/Thêm tiêu đề lọc (lưu lại userId, userName để load lại)
+            const oldTitle = orderTabContent.querySelector('.filter-title');
+            if (oldTitle) oldTitle.remove();
+            const titleHtml = `
+                <div class="filter-title" 
+                     data-user-id="${userId}" 
+                     data-user-name="${userName}"
+                     style="padding: 10px 15px; background: #e7f3ff; border: 1px solid #007bff; border-radius: 5px; margin-bottom: 20px;">
+                    Đang lọc đơn hàng của: <strong>${userName}</strong> (ID: ${userId})
+                    <button id="btn-show-all-orders" style="margin-left: 20px; background-color: #6c757d; color:white; border:none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
+                        Hiển thị tất cả
+                    </button>
+                </div>
+            `;
+            orderTabContent.insertAdjacentHTML('afterbegin', titleHtml);
+            
+            if (orders && orders.length > 0) {
+                orderListBody.innerHTML = '';
+                orders.forEach(order => {
+                    const formattedDate = formatOrderDate(order.thoi_gian_dat);
+                    const statusHtml = formatOrderStatus(order.trang_thai);
+                    const actionHtml = generateActionButtons(order);
+                    
+                    orderListBody.innerHTML += `
+                        <tr>
+                            <td>${order.id}</td>
+                            <td>${order.ho_ten}</td>
+                            <td style="font-size: 0.9rem; max-width: 150px;">${order.dia_chi}</td>
+                            <td>${formatCurrency(order.tong_tien)}</td>
+                            <td>${formattedDate}</td> 
+                            <td>${statusHtml}</td>
+                            <td>${actionHtml}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                orderListBody.innerHTML = `<tr><td colspan="7">Người dùng <strong>${userName}</strong> chưa có đơn hàng nào.</td></tr>`;
+            }
+        }
+        
+        // 4. Hàm: Tải danh sách User
+        async function loadUsers() {
+            const userListBody = document.getElementById('user-list-body');
+            if (!userListBody) return;
+            userListBody.innerHTML = '<tr><td colspan="5">Đang tải...</td></tr>';
+            
+            const users = await fetchAdminData('users'); 
+            
+            if (users && users.length > 0) {
+                userListBody.innerHTML = '';
+                users.forEach(user => {
+                    const userStatus = user.is_active == 1 ? 'Hoạt động' : 'Đã khóa';
+                    const buttonText = user.is_active == 1 ? 'Khóa 🚫' : 'Mở 🔓';
+                    const newStatus = user.is_active == 1 ? 0 : 1; 
+                    const buttonClass = user.is_active == 1 ? 'btn-block-user' : 'btn-unblock-user';
+                    const buttonColor = user.is_active == 1 ? '#e74c3c' : '#27ae60';
+                    const statusColor = user.is_active == 1 ? '#27ae60' : '#e74c3c';
+
+                    userListBody.innerHTML += `
+                        <tr>
+                            <td>${user.id}</td>
+                            <td>${user.ho_ten}</td>
+                            <td>${user.email}</td>
+                            <td>
+                                ${user.role} 
+                                <span style="font-weight:bold; color: ${statusColor};">(${userStatus})</span>
+                            </td>
+                            <td>
+                                <button class="btn-view-user-orders" data-user-id="${user.id}" data-user-name="${user.ho_ten}" style="background-color: #007bff; ...">Xem Đơn</button>
+                                <button class="${buttonClass}" data-user-id="${user.id}" data-new-status="${newStatus}" data-user-name="${user.ho_ten}" style="background-color: ${buttonColor}; ...">${buttonText}</button>
+                            </td>
+                        </tr>
+                    `; // (Rút gọn style cho dễ nhìn)
+                });
+            } else {
+                userListBody.innerHTML = '<tr><td colspan="5">Không tìm thấy người dùng nào.</td></tr>';
+            }
+        }
+
+        // ----- CÁC HÀM XỬ LÝ (CALL API) -----
+
+        // 5. Hàm: Gọi API để Khóa/Mở User
+        async function toggleUserStatus(userId, newStatus) {
+            try {
+                const response = await fetch('manage-user-api.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: parseInt(userId), new_status: parseInt(newStatus) })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    alert(result.message);
+                    loadUsers(); // Tải lại bảng User
+                } else {
+                    alert('Lỗi: ' + result.message);
+                }
+            } catch (error) {
+                alert('Lỗi: ' + error.message);
+            }
+        }
+        
+        // 6. [MỚI] Hàm: Gọi API để Cập nhật Đơn hàng
+        async function updateOrderStatus(orderId, newStatus) {
+            try {
+                const response = await fetch('manage-order-api.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ order_id: parseInt(orderId), new_status: newStatus })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    alert(result.message);
+                    
+                    // [QUAN TRỌNG] Tải lại đúng bảng đơn hàng
+                    const filterTitle = orderTabContent.querySelector('.filter-title');
+                    if (filterTitle) {
+                        // Nếu đang lọc, tải lại theo bộ lọc
+                        loadUserOrders(filterTitle.dataset.userId, filterTitle.dataset.userName);
+                    } else {
+                        // Nếu không, tải lại toàn bộ
+                        loadOrders();
+                    }
+                } else {
+                    alert('Lỗi: ' + result.message);
+                }
+            } catch (error) {
+                alert('Lỗi: ' + error.message);
+            }
+        }
+
+        // 7. [MỚI] Hàm: Gọi API để XEM Chi tiết Đơn hàng
+        async function showOrderDetails(orderId) {
+            // Lấy chi tiết từ API
+            const details = await fetchAdminData('order_details', { order_id: orderId });
+            
+            if (details && details.length > 0) {
+                let detailHtml = `Chi tiết Đơn hàng #${orderId}:\n(Gồm ${details.length} mặt hàng)\n\n`;
+                let totalCheck = 0;
+                
+                details.forEach(item => {
+                    const itemTotal = item.gia_luc_mua * item.so_luong;
+                    totalCheck += itemTotal;
+                    // item.ten có thể là '[Sản phẩm đã bị xóa]' nếu API xử lý (admin-data-api.php đã làm)
+                    detailHtml += `- ${item.ten} (SL: ${item.so_luong}) x ${formatCurrency(item.gia_luc_mua)}\n`;
+                });
+                
+                detailHtml += `\nTổng (kiểm tra lại): ${formatCurrency(totalCheck)}`;
+                alert(detailHtml); // Hiển thị chi tiết bằng alert cho đơn giản
+                
+            } else {
+                alert("Không tìm thấy chi tiết cho đơn hàng này hoặc đơn hàng không có sản phẩm.");
+            }
+        }
+
+        // ----- CÁC HÀM HELPER (HỖ TRỢ) -----
+        
+        // 7. [MỚI] Hàm tạo nút hành động cho đơn hàng
+        function generateActionButtons(order) {
+            // Luôn có nút Xem
+            let html = `<button class="btn-view-details" data-order-id="${order.id}" style="background-color: #17a2b8; ...">Xem</button>`;
+            
+            // Nếu chờ, thêm nút Xác nhận
+            if (order.trang_thai === 'Chờ xác nhận') {
+                html += `
+                    <button class="btn-confirm-order" 
+                            data-order-id="${order.id}"
+                            style="background-color: #27ae60; color:white; border:none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-left: 5px;">
+                        Xác nhận
+                    </button>
+                `;
+            }
+            return html;
+        }
+
+        // 8. [MỚI] Hàm định dạng màu mè cho trạng thái
+        function formatOrderStatus(status) {
+            let color = '#555'; // Màu mặc định
+            if (status === 'Chờ xác nhận') color = '#f39c12'; // Vàng
+            if (status === 'Đang vận chuyển') color = '#007bff'; // Xanh
+            if (status === 'Hoàn tất') color = '#27ae60'; // Xanh lá
+            if (status === 'Đã hủy') color = '#e74c3c'; // Đỏ
+            return `<strong style="color: ${color};">${status}</strong>`;
+        }
+
+        // 9. Các hàm (tái định nghĩa)
+        async function fetchAdminData(type, params = {}) {
+            params.type = type;
+            const queryString = new URLSearchParams(params).toString();
+            const url = `admin-data-api.php?${queryString}`;
+            try {
+                const response = await fetch(url);
+                if (!response.ok) return null;
+                const result = await response.json();
+                return result.success ? result.data : null;
+            } catch (error) { return null; }
+        }
+        function formatCurrency(number) {
+            const num = Number(number);
+            if (isNaN(num)) return "0 ₫";
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', 'currency': 'VND' }).format(num);
+        }
+        function formatOrderDate(dateString) {
+            const date = new Date(dateString);
+            const pad = (num) => String(num).padStart(2, '0');
+            return `${pad(date.getHours())}:${pad(date.getMinutes())} ${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${date.getFullYear()}`;
+        }
+        
+        // ----- KHỞI TẠO TAB -----
+        
+        // Tải dữ liệu cho tab đang active khi load trang
+        const activeTabLink = document.querySelector('.admin-tab-link.active');
+        if (activeTabLink) {
+            const tabId = activeTabLink.dataset.tab;
+            if (tabId === 'tab-orders') loadOrders();
+            if (tabId === 'tab-users') loadUsers();
+        }
+        // Gắn sự kiện click cho các tab (sau khi đã khai báo hàm)
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.dataset.tab;
+                if (tabId === 'tab-orders') loadOrders(); // Tải khi nhấn
+                if (tabId === 'tab-users') loadUsers(); // Tải khi nhấn
+                if (tabId === 'tab-stats') loadStats();
+                if (tabId === 'tab-categories') loadCategories();
+            });
+        });
+
+        // [MỚI] Biến lưu biểu đồ (để hủy khi vẽ lại)
+        let revenueChartInstance = null;
+        let productChartInstance = null;
+
+        // [MỚI] Hàm tải thống kê và vẽ biểu đồ
+        async function loadStats() {
+            try {
+                const res = await fetch('stats-api.php');
+                const json = await res.json();
+
+                if (json.success) {
+                    // 1. Vẽ biểu đồ Doanh thu (Cột)
+                    const ctxRev = document.getElementById('revenueChart').getContext('2d');
+                    if (revenueChartInstance) revenueChartInstance.destroy(); // Xóa cũ nếu có
+
+                    revenueChartInstance = new Chart(ctxRev, {
+                        type: 'bar',
+                        data: {
+                            // ... (giữ nguyên data) ...
+                            labels: json.revenue.map(item => item.thang),
+                            datasets: [{
+                                label: 'Doanh thu (VND)',
+                                data: json.revenue.map(item => item.doanh_thu),
+                                backgroundColor: '#3498db'
+                            }]
+                        },
+                        // [THAY ĐỔI QUAN TRỌNG]
+                        options: { 
+                            responsive: false, // Tắt co giãn tự động
+                            maintainAspectRatio: false, // Cho phép chỉnh chiều cao tùy ý
+                            scales: {
+                                y: { beginAtZero: true }
+                            }
+                        }
+                    });
+
+                    // 2. Vẽ biểu đồ Sản phẩm (Tròn)
+                    const ctxProd = document.getElementById('productChart').getContext('2d');
+                    if (productChartInstance) productChartInstance.destroy();
+
+                    productChartInstance = new Chart(ctxProd, {
+                        type: 'pie',
+                        data: {
+                            // ... (giữ nguyên data) ...
+                            labels: json.top_products.map(item => item.ten),
+                            datasets: [{
+                                label: 'Số lượng bán',
+                                data: json.top_products.map(item => item.da_ban),
+                                backgroundColor: ['#ff6384', '#36a2eb', '#ffce56', '#4bc0c0', '#9966ff']
+                            }]
+                        },
+                        // [THAY ĐỔI QUAN TRỌNG]
+                        options: { 
+                            responsive: false, // Tắt co giãn
+                            maintainAspectRatio: false, // Tắt giữ tỷ lệ khung hình
+                            plugins: {
+                                legend: {
+                                    position: 'bottom', // Đưa chú thích xuống dưới cho gọn
+                                    labels: { boxWidth: 12, font: { size: 10 } } // Thu nhỏ chữ chú thích
+                                }
+                            }
+                        }
+                    });
+
+                    // 3. Điền bảng chi tiết
+                    const tbody = document.getElementById('revenue-table-body');
+                    tbody.innerHTML = '';
+                    let totalRev = 0;
+                    json.revenue.forEach(r => {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${r.thang}</td>
+                                <td>${formatCurrency(r.doanh_thu)}</td>
+                            </tr>
+                        `;
+                        totalRev += parseInt(r.doanh_thu);
+                    });
+                    // Thêm dòng tổng cộng
+                    tbody.innerHTML += `
+                        <tr style="font-weight:bold; background:#eee;">
+                            <td>TỔNG CỘNG</td>
+                            <td>${formatCurrency(totalRev)}</td>
+                        </tr>
+                    `;
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        // [ĐÃ NÂNG CẤP] Hàm Xuất PDF (Fix lỗi vỡ giao diện)
+        document.getElementById('btn-export-pdf').addEventListener('click', function() {
+            const element = document.getElementById('report-content');
+            
+            // Cấu hình tối ưu cho khổ A4
+            const opt = {
+                margin:       [0.5, 0.5], // Lề trên/dưới, trái/phải (inch)
+                filename:     'Bao_Cao_Doanh_Thu_TZShop.pdf',
+                image:        { type: 'jpeg', quality: 1 }, // Ảnh chất lượng cao nhất
+                html2canvas:  { 
+                    scale: 2, // Tăng độ nét
+                    useCORS: true, // Hỗ trợ tải ảnh từ nguồn khác (nếu có)
+                    scrollY: 0 
+                },
+                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' } // Khổ A4 dọc
+            };
+
+            // Gọi thư viện
+            html2pdf().set(opt).from(element).save();
+        });
+
+        // [MỚI] Kích hoạt Tab (Thêm vào phần tabs.addEventListener cũ)
+         //if (tabId === 'tab-stats') loadStats();
+
+
+
+            // Biến lưu toàn bộ danh mục tải từ API
+                
+
+                // Hàm tải danh mục từ API
+                async function initCategorySelects() {
+                    try {
+                        const res = await fetch('categories-api.php');
+                        const json = await res.json();
+                        if (json.success) {
+                            allCategories = json.data;
+                            // Điền dữ liệu cho các ô Danh mục Cha
+                            populateParentSelect('add-cat-parent');
+                            populateParentSelect('edit-cat-parent');
+                            
+                            // [TÙY CHỌN] Nếu làm Tab Quản lý Danh mục riêng thì gọi hàm render ở đây
+                        }
+                    } catch (e) { console.error(e); }
+                }
+
+
+                
+
+
+
+
+
+
+
+
+
+
+
+
+                // --- CÁC HÀM XỬ LÝ DANH MỤC ---
+
+        // Hàm 1: Tải danh mục từ API và điền vào các ô chọn (Dropdown)
+        async function initCategorySelects() {
+            try {
+                const res = await fetch('categories-api.php');
+                const json = await res.json();
+                
+                if (json.success) {
+                    allCategories = json.data; // Lưu dữ liệu vào biến toàn cục
+                    
+                    // Điền vào ô "Danh mục chính" ở Form Thêm và Form Sửa
+                    populateParentSelect('add-cat-parent');
+                    populateParentSelect('edit-cat-parent');
+                    
+                    // Điền vào ô "Thuộc danh mục (Cha)" ở Tab Quản lý Danh mục
+                    const newCatParent = document.getElementById('new-cat-parent');
+                    if (newCatParent) {
+                        newCatParent.innerHTML = '<option value="0">-- Là Danh Mục Gốc (Cha) --</option>';
+                        const parents = allCategories.filter(c => c.parent_id == 0);
+                        parents.forEach(p => {
+                            newCatParent.innerHTML += `<option value="${p.id}">${p.ten_danh_muc}</option>`;
+                        });
+                    }
+                }
+            } catch (e) { console.error("Lỗi tải danh mục:", e); }
+        }
+
+        // Hàm 2: Điền danh mục Cha vào Select
+        function populateParentSelect(selectId) {
+            const select = document.getElementById(selectId);
+            if (!select) return;
+            
+            // Lọc lấy Cha (parent_id = 0)
+            const parents = allCategories.filter(c => c.parent_id == 0);
+            
+            select.innerHTML = '<option value="">-- Chọn danh mục cha --</option>';
+            parents.forEach(p => {
+                select.innerHTML += `<option value="${p.id}">${p.ten_danh_muc}</option>`;
+            });
+
+            // Gắn sự kiện: Chọn Cha -> Hiện Con
+            select.addEventListener('change', function() {
+                const type = selectId.includes('add') ? 'add' : 'edit';
+                const childSelectId = `${type}-cat-child`;
+                populateChildSelect(this.value, childSelectId);
+            });
+        }
+
+        // Hàm 3: Điền danh mục Con vào Select
+        function populateChildSelect(parentId, childSelectId) {
+            const childSelect = document.getElementById(childSelectId);
+            if (!childSelect) return;
+
+            childSelect.innerHTML = '<option value="">-- Chọn chi tiết --</option>';
+            if (!parentId) return;
+
+            const children = allCategories.filter(c => c.parent_id == parentId);
+            children.forEach(c => {
+                childSelect.innerHTML += `<option value="${c.id}">${c.ten_danh_muc}</option>`;
+            });
+        }
+
+        // Hàm 4: Thêm Danh mục Mới (Xử lý nút Thêm)
+        async function addCategory(name, parentId) {
+            try {
+                const res = await fetch('categories-api.php', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ action: 'add', ten_danh_muc: name, parent_id: parentId })
+                });
+                const json = await res.json();
+                alert(json.message);
+                
+                if (json.success) {
+                    document.getElementById('new-cat-name').value = ''; // Xóa ô nhập
+                    initCategorySelects(); // Tải lại dropdown
+                    loadCategoriesTable(); // Tải lại bảng danh mục
+                }
+            } catch (e) { alert("Lỗi kết nối khi thêm danh mục"); }
+        }
+
+        // Hàm 5: Tải bảng danh sách danh mục (Tab Quản lý Danh mục)
+        async function loadCategoriesTable() {
+            const tbody = document.getElementById('category-list-body');
+            if(!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="4">Đang tải...</td></tr>';
+
+            try {
+                const res = await fetch('categories-api.php');
+                const json = await res.json();
+                
+                if (json.success) {
+                    tbody.innerHTML = '';
+                    json.data.forEach(cat => {
+                        const isParent = cat.parent_id == 0;
+                        const typeLabel = isParent 
+                            ? '<span style="color:#d35400; font-weight:bold;">Danh mục CHA</span>' 
+                            : '<span style="color:#27ae60;">Danh mục CON</span>';
+                        const nameDisplay = isParent ? `<strong>${cat.ten_danh_muc}</strong>` : `— ${cat.ten_danh_muc}`;
+
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${cat.id}</td>
+                                <td>${nameDisplay}</td>
+                                <td>${typeLabel}</td>
+                                <td><button class="btn-del-cat" data-id="${cat.id}" style="background:#e74c3c; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Xóa</button></td>
+                            </tr>
+                        `;
+                    });
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        // --- XỬ LÝ SỰ KIỆN CLICK (Event Delegation) ---
+        document.body.addEventListener('click', function(e) {
+            
+            // Xử lý nút THÊM DANH MỤC
+            if (e.target && e.target.id === 'btn-add-cat') {
+                const nameInput = document.getElementById('new-cat-name');
+                const parentSelect = document.getElementById('new-cat-parent');
+                
+                const name = nameInput.value.trim();
+                const parentId = parentSelect.value;
+
+                if (name) {
+                    addCategory(name, parentId);
+                } else {
+                    alert("Vui lòng nhập tên danh mục!");
+                }
+            }
+
+         
+        });
+
+
+
+
+        // 2. Đặt hàm deleteCategory ra ngoài, nằm độc lập (Cùng cấp với hàm addCategory)
+async function deleteCategory(id) {
+    console.log("Đang xóa danh mục ID:", id);
+    try {
+        const res = await fetch('categories-api.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ action: 'delete', id: id })
+        });
+        
+        if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+
+        const json = await res.json();
+
+        if (json.success) {
+            alert("✅ " + json.message);
+            // Tải lại bảng và dropdown
+            if (typeof loadCategoriesTable === 'function') loadCategoriesTable(); 
+            if (typeof initCategorySelects === 'function') initCategorySelects();
+            // Cập nhật lại cả bộ lọc bên tab sản phẩm nếu cần
+            if (typeof updateAdminFilter === 'function') updateAdminFilter();
+        } else {
+            alert("⚠️ Lỗi: " + json.message);
+        }
+    } catch (e) { 
+        console.error("Lỗi xóa danh mục:", e);
+        alert("Lỗi kết nối hoặc xử lý server."); 
+    }
+}
+
+
+
+
+
+
+
+        // --- LOGIC CHUYỂN TAB ---
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                contents.forEach(c => c.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab).classList.add('active');
+
+                // Load dữ liệu khi bấm tab
+                if (tab.dataset.tab === 'tab-categories') loadCategoriesTable();
+            });
+        });
+
+
+
+
+
+
+
+
+
+
+
+
+
+                // GỌI TRỰC TIẾP NHƯ THẾ NÀY:
+            initCategorySelects(); 
+
+
+            // [MỚI] Hàm cập nhật Bộ lọc Danh mục (Tab Sản phẩm)
+        async function updateAdminFilter() {
+            const filterSelect = document.getElementById('admin-category-filter');
+            if (!filterSelect) return;
+
+            try {
+                const res = await fetch('categories-api.php');
+                const json = await res.json();
+                
+                if (json.success) {
+                    // Giữ lại option đầu tiên "Xem tất cả"
+                    filterSelect.innerHTML = '<option value="all">-- Xem tất cả Sản phẩm --</option>';
+                    
+                    const allCats = json.data;
+                    const parents = allCats.filter(c => c.parent_id == 0);
+
+                    parents.forEach(p => {
+                        // Thêm Cha
+                        filterSelect.innerHTML += `<option value="${p.ten_danh_muc}" style="font-weight:bold;">${p.ten_danh_muc}</option>`;
+                        
+                        // Thêm Con
+                        const children = allCats.filter(c => c.parent_id == p.id);
+                        children.forEach(c => {
+                            filterSelect.innerHTML += `<option value="${c.ten_danh_muc}">&nbsp;&nbsp;— ${c.ten_danh_muc}</option>`;
+                        });
+                    });
+                }
+            } catch (e) { console.error(e); }
+        }
+
+
+       
+
+
+        async function handleShowEditForm(e) { 
+        // Lấy ID từ nút bấm (nếu e là sự kiện) hoặc truyền trực tiếp
+        const id = e.target ? e.target.dataset.id : e;
+        console.log(`[Admin] Đang lấy dữ liệu sửa cho ID: ${id}`);
+
+        try {
+            // 1. Gọi đúng API: products-api.php
+            const res = await fetch(`products-api.php?id=${id}`);
+            const json = await res.json();
+            
+            // API trả về mảng (hoặc object), lấy phần tử đầu tiên
+            const sp = Array.isArray(json) ? json[0] : json;
+
+            if (sp) {
+                // 2. Điền thông tin cơ bản
+                document.getElementById('edit-product-id').innerText = sp.id;
+                document.getElementById('edit-id').value = sp.id;
+                document.getElementById('edit-ten').value = sp.ten;
+                
+                // Xử lý giá (chỉ lấy số)
+                const giaVal = formatCurrency(sp.gia).replace(/[^\d]/g, '');
+                document.getElementById('edit-gia').value = giaVal;
+                
+                const giaGocVal = formatCurrency(sp.gia_goc).replace(/[^\d]/g, '');
+                document.getElementById('edit-gia-goc').value = giaGocVal;
+
+                document.getElementById('edit-moTa').value = sp.moTa || ''; 
+                document.getElementById('edit-so-luong').value = sp.so_luong;
+
+                // Điền ảnh
+                document.getElementById('edit-hinh-preview').src = sp.hinh;
+                document.getElementById('edit-hinh-cu').value = sp.hinh;
+                document.getElementById('edit-hinh-moi').value = ''; 
+
+                // 3. Xử lý Danh mục Cha - Con (Dùng biến toàn cục allCategories)
+                // Đảm bảo allCategories đã có dữ liệu (từ hàm initCategorySelects)
+                if (typeof allCategories !== 'undefined' && allCategories.length > 0) {
+                    const currentCat = allCategories.find(c => c.id == sp.cat_id); // Dùng cat_id từ API
+                    
+                    const parentSelect = document.getElementById('edit-cat-parent');
+                    const childSelect = document.getElementById('edit-cat-child');
+
+                    if (currentCat) {
+                        // Reset và chọn cha
+                        populateParentSelect('edit-cat-parent'); 
+                        parentSelect.value = currentCat.parent_id; 
+                        
+                        // Load và chọn con
+                        populateChildSelect(currentCat.parent_id, 'edit-cat-child');
+                        childSelect.value = currentCat.id;
+                    } else {
+                        // Không tìm thấy danh mục (hoặc sản phẩm cũ chưa có cat_id)
+                        populateParentSelect('edit-cat-parent');
+                        parentSelect.value = "";
+                        childSelect.innerHTML = '<option value="">-- Chọn cha trước --</option>';
+                    }
+                }
+
+                // 4. Mở Modal
+                const modalEdit = document.getElementById('modal-edit');
+                if(modalEdit) modalEdit.style.display = "block";
+                
+            } else {
+                alert("Không tìm thấy dữ liệu sản phẩm này.");
+            }
+        } catch (err) {
+            console.error("Lỗi khi tải thông tin sửa:", err);
+            alert("Lỗi tải dữ liệu. Xem console để biết chi tiết.");
+        }
+    }
+
+        // Gọi hàm này khi tải trang Admin
+        updateAdminFilter();
+    }); // Kết thúc DOMContentLoaded
+  </script>
+</body>
+</html>
